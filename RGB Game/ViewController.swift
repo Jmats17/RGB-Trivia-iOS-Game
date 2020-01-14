@@ -57,6 +57,9 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if defaults.value(forKey: "high_score") != nil {
+            highScoreLbl.text = "\(getHighScore())"
+        }
         // Do any additional setup after loading the view.
     }
     
@@ -74,20 +77,33 @@ class ViewController: UIViewController {
         defaults.set(currentScore, forKey: "high_score")
     }
     
-    private func updateHighScore() {
+    func showHighScoreAlert(score : Int) {
+        let highScoreView = UIAlertController(title: "New Highscore!", message: "Woohoo! Congrats on the new highscore of \(score).", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Thanks! Play again", style: .default, handler: nil)
+        let changeMode = UIAlertAction(title: "Change Game Mode", style: .default) { (action) in
+            self.requestGameMode()
+        }
+        highScoreView.addAction(okAction)
+        highScoreView.addAction(changeMode)
+        self.present(highScoreView, animated: true, completion: nil)
+    }
+    
+    func updateHighScore() {
         let score = defaults.value(forKey: "high_score")
         if score != nil {
             if getHighScore() < currentScore {
+                showHighScoreAlert(score: currentScore)
                 setHighScore()
                 highScoreLbl.text = "\(getHighScore())"
             }
         } else {
+            showHighScoreAlert(score: currentScore)
             setHighScore()
             highScoreLbl.text = "\(getHighScore())"
         }
     }
     
-    private func gameOver() {
+    func gameOver() {
         updateHighScore()
         currentScoreLbl.text = "0"
         currentScore = 0
@@ -111,16 +127,17 @@ class ViewController: UIViewController {
     }
     
     
-    private func beginGame() {
+    func beginGame() {
         assignInitialColor()
         let answers = generateAnswers()
+        print(currentColorStr)
         greenButton.setTitle(answers[0], for: .normal)
         blueButton.setTitle(answers[1], for: .normal)
         orangeButton.setTitle(answers[2], for: .normal)
         redButton.setTitle(answers[3], for: .normal)
     }
-    
-    private func generateAnswers() -> [String] {
+
+    func generateAnswers() -> [String] {
         var answers : [String] = []
         
         for _ in 0..<3 {
@@ -150,12 +167,12 @@ class ViewController: UIViewController {
         return answers.shuffled()
     }
     
-    private func assignInitialColor() {
+    func assignInitialColor() {
         currentColor = .random
         colorView.backgroundColor = currentColor
     }
 
-    private func requestGameMode() {
+    func requestGameMode() {
         let gameModeView =  UIAlertController(title: "GAME MODE", message: "Which mode would you like to play?", preferredStyle: .alert)
         
         let hexMode = UIAlertAction(title: "#Hex Mode", style: .default) { (action) in
@@ -168,14 +185,14 @@ class ViewController: UIViewController {
             self.beginGame()
         }
         
-        let mixedMode = UIAlertAction(title: "Mix'n'Match Mode", style: .default) { (action) in
-            self.gameMode = "Mixed"
-            self.beginGame()
-        }
+//        let mixedMode = UIAlertAction(title: "Mix'n'Match Mode", style: .default) { (action) in
+//            self.gameMode = "Mixed"
+//            self.beginGame()
+//        }
         
         gameModeView.addAction(hexMode)
         gameModeView.addAction(valueMode)
-        gameModeView.addAction(mixedMode)
+        //gameModeView.addAction(mixedMode)
         
         self.present(gameModeView, animated: true, completion: nil)
     }
