@@ -1,0 +1,6 @@
+framework module Pods_RGB_Game {
+  umbrella header "Pods-RGB Game-umbrella.h"
+
+  export *
+  module * { export * }
+}
