@@ -206,11 +206,6 @@ class ViewController: UIViewController {
                 buttons[i]?.setTitle(answers[i], for: .normal)
             }
         }
-        print(currentColorStr)
-//        greenButton.setTitle(answers[0], for: .normal)
-//        blueButton.setTitle(answers[1], for: .normal)
-//        orangeButton.setTitle(answers[2], for: .normal)
-//        redButton.setTitle(answers[3], for: .normal)
         
     }
 
@@ -223,7 +218,7 @@ class ViewController: UIViewController {
                 answers.append("#\(UIColor.random.toHex()!)")
             case "Value":
                 let color = UIColor.random.rgb()!
-                answers.append("(\(color.red), \(color.green), \(color.blue))")
+                answers.append("RGB(\(color.red), \(color.green), \(color.blue))")
             default:
                 break
             }
@@ -235,7 +230,7 @@ class ViewController: UIViewController {
             answers.append(currentColorStr)
         case "Value":
             let color = currentColor.rgb()!
-            currentColorStr = "(\(color.red), \(color.green), \(color.blue))"
+            currentColorStr = "RGB(\(color.red), \(color.green), \(color.blue))"
             answers.append(currentColorStr)
         default:
             break
