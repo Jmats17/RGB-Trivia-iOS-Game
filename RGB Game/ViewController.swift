@@ -44,7 +44,7 @@ class ViewController: UIViewController {
             redButton.layer.cornerRadius = 7.0
         }
     }
-    
+    var correctButton : UIButton!
     var bannerView: GADBannerView!
     let defaults = UserDefaults.standard
     var currentColor : UIColor!
@@ -62,12 +62,7 @@ class ViewController: UIViewController {
         if defaults.value(forKey: "high_score") != nil {
             highScoreLbl.text = "\(getHighScore())"
         }
-        bannerView = GADBannerView(adSize: kGADAdSizeBanner)
-
-        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
-        bannerView.rootViewController = self
-        bannerView.load(GADRequest())
-        bannerView.delegate = self
+        createBanner()
         // Do any additional setup after loading the view.
     }
     
@@ -75,6 +70,17 @@ class ViewController: UIViewController {
         super.viewDidAppear(true)
         requestGameMode()
         
+    }
+    
+    func createBanner() {
+        bannerView = GADBannerView(adSize: kGADAdSizeBanner)
+        //test
+        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        //mine
+        //bannerView.adUnitID = "ca-app-pub-3064270335088212/7053869411"
+        bannerView.rootViewController = self
+        bannerView.load(GADRequest())
+        bannerView.delegate = self
     }
     
     func addBannerViewToView(_ bannerView: GADBannerView) {
@@ -149,23 +155,63 @@ class ViewController: UIViewController {
         }
         
         if color == currentColorStr {
-            currentScore += 1
-            self.beginGame()
+            
+            UIView.animate(withDuration: 0.2, animations: {
+                sender.backgroundColor = UIColor(red: 39/255, green: 174/255, blue: 96/255, alpha: 1.0)
+                sender.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+            }) { (didComplete) in
+                UIView.animate(withDuration: 0.2) {
+                    sender.backgroundColor = UIColor(red: 52/255, green: 73/255, blue: 94/255, alpha: 1.0)
+                    sender.transform = CGAffineTransform.identity
+                    
+                    self.currentScore += 1
+                    self.beginGame()
+                }
+            }
+            
         } else {
-            gameOver()
+            
+            UIView.animate(withDuration: 0.6, animations: {
+                sender.backgroundColor = UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0)
+                sender.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                self.correctButton.backgroundColor = UIColor(red: 39/255, green: 174/255, blue: 96/255, alpha: 1.0)
+                self.correctButton.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+
+            }) { (didComplete) in
+                UIView.animate(withDuration: 0.2) {
+                    sender.backgroundColor = UIColor(red: 52/255, green: 73/255, blue: 94/255, alpha: 1.0)
+                    sender.transform = CGAffineTransform.identity
+                    self.correctButton.backgroundColor = UIColor(red: 52/255, green: 73/255, blue: 94/255, alpha: 1.0)
+                    self.correctButton.transform = CGAffineTransform.identity
+                    self.gameOver()
+                }
+            }
+            
         }
-        
     }
     
+    @IBAction func changeMode(sender : UIButton) {
+        requestGameMode()
+    }
     
     func beginGame() {
         assignInitialColor()
         let answers = generateAnswers()
+        let buttons = [greenButton, blueButton, orangeButton, redButton]
+        for i in 0..<buttons.count {
+            if answers[i] == currentColorStr {
+                correctButton = buttons[i]
+                buttons[i]?.setTitle(answers[i], for: .normal)
+            } else {
+                buttons[i]?.setTitle(answers[i], for: .normal)
+            }
+        }
         print(currentColorStr)
-        greenButton.setTitle(answers[0], for: .normal)
-        blueButton.setTitle(answers[1], for: .normal)
-        orangeButton.setTitle(answers[2], for: .normal)
-        redButton.setTitle(answers[3], for: .normal)
+//        greenButton.setTitle(answers[0], for: .normal)
+//        blueButton.setTitle(answers[1], for: .normal)
+//        orangeButton.setTitle(answers[2], for: .normal)
+//        redButton.setTitle(answers[3], for: .normal)
+        
     }
 
     func generateAnswers() -> [String] {
@@ -215,15 +261,10 @@ class ViewController: UIViewController {
             self.gameMode = "Value"
             self.beginGame()
         }
-        
-//        let mixedMode = UIAlertAction(title: "Mix'n'Match Mode", style: .default) { (action) in
-//            self.gameMode = "Mixed"
-//            self.beginGame()
-//        }
+    
         
         gameModeView.addAction(hexMode)
         gameModeView.addAction(valueMode)
-        //gameModeView.addAction(mixedMode)
         
         self.present(gameModeView, animated: true, completion: nil)
     }
